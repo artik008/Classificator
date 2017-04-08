@@ -2,7 +2,7 @@ Test/Dubrovskij.txt--------A.S.Pushkin
 
 Test/Evgenii_Onegin--------A.S.Pushkin
 
-Test/sil_marillion.txt--------D.R.R.Tolkien 
+Test/sil_marillion.txt--------Zh.G.Vern
 
 Test/Krestyanin_i_rabotnic--------M.Y.Lermontov
 
@@ -13,4 +13,16 @@ Test/Dve_sobaki--------I.A.Krilov
 Test/ispoved--------M.Y.Lermontov
 
 Test/Kavkazskii_plennik--------M.Y.Lermontov
+
+Test/Voina_i_mir4--------L.N.Tolstoy
+
+Test/Posle_bala--------M.Y.Lermontov
+
+Test/Magelanovo_oblaco--------S.Lem
+
+Test/Tainstvennii_ostrov--------D.R.R.Tolkien 
+
+Test/Yunie_puteshestvenniki--------Zh.G.Vern
+
+Test/Plavayuschii_ostrov--------A.S.Pushkin
 
