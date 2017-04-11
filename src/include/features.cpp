@@ -10,10 +10,7 @@
 using namespace std;
 
 freeling::maco_options my_maco_options (const wstring &lang, const wstring &lpath) {
-  // create options holder 
   freeling::maco_options opt(lang);
-  // Provide files for morphological submodules. Note that it is not necessary
-  // to set files for modules that will not be used
   opt.UserMapFile = L"";
   opt.LocutionsFile = lpath + L"locucions.dat"; 
   opt.AffixFile = lpath + L"afixos.dat";
@@ -244,7 +241,7 @@ vector<float> GetFeatures(char* file_name) {
     Features0 = norm(GetSpeechParts(ls, lw));
     Features.insert(Features.end(),Features0.begin(), Features0.end());
     	
-    Features0 = GetGrammsFrequency(&ls);
+  Features0 = GetGrammsFrequency(&ls);
 	Features.insert(Features.end(),Features0.begin(), Features0.end());
 		
 	return norm(Features);
