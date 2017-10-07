@@ -1,0 +1,13 @@
+
+prefix=/usr/local
+exec_prefix=${prefix}/bin
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: FreeLing
+Description: Open source library of natural language analyzers
+Version: 4.0-beta1
+Requires: 
+Libs: -L${libdir} -lfreeling
+Cflags: -I${includedir} 
+DataDir=${prefix}/share/freeling

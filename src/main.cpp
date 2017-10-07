@@ -47,7 +47,7 @@ int main (int argc, char** argv) {
 	unsigned int start_time =  clock();
 
 	switch (argc) {
-		case 1: cout << "usage: Author_Class [-help] [-train \"train_file_name\" | -classificate \"test_file_name\" | -classificateall \"test_file_list_name\"] " << endl; break;
+		case 1: cout << "usage: ./bin/Author_Class [-help] [-train \"train_file_name\" | -classificate \"test_file_name\" | -classificateall \"test_file_list_name\"] " << endl; break;
 		case 2: if (!strcmp(argv[1], "-help")) cout << "no help:)" << endl; 
 					else if ((!strcmp(argv[1], "-train"))||(!strcmp(argv[1], "-classificate"))||(!strcmp(argv[1], "-classificateall"))) cout << "check file_name" << endl;
 						else cout << "Error! Wrong arguments!" << endl;
