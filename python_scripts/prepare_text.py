@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 import os 
 
-from pymystem3 import *
-from collections import OrderedDict
 from nltk.tokenize import sent_tokenize, word_tokenize
+from collections import OrderedDict
+from pymystem3 import *
 
 m = Mystem()
 
@@ -107,7 +108,7 @@ def learning (filename):
 	learning_claster_list = Clasters_list()
 	learning_claster_list.make_learning_clasters(articles)
 	for cl in learning_claster_list.claster_list:
-		cl.print()
+		cl.print_clt()
 
 
 class Claster:
@@ -127,25 +128,24 @@ class Claster:
 	def newmass(self, new):
 		return self.mass_elem
 
-	def print(self):
+	def print_clt(self):
 		print('id = ' + str(self.claster_id) + '\n')
 		for e in self.elem_list:
 			print('elem_id = ' + str(e.id) + '  user_id = ' + str(e.user) + '\n')
-		print('\n\n')
+		print('\n')
 
 class Clasters_list:
 	def __init__ (self):
 		self.count_clasters = 0
 		self.claster_list = []
-		self.list_quality = 0
 
 	def add_claster(self, new):
 		self.count_clasters += 1
 		self.claster_list.append(new)
-		self.list_quality = self.count_quality(new)
 
-	def count_quality(self, new):
-		return self.list_quality
+	def del_claster(self, elem):
+		self.count_clasters -= 1
+		self.claster_list.remove(elem)
 
 	def scan_elem(self, new):
 		i = 0
@@ -159,6 +159,57 @@ class Clasters_list:
 	def make_learning_clasters (self, features_list):
 		for element in features_list:
 			self.scan_elem(element)
+
+def count_quality (cl_list, teach_cl_list, old_quality):
+	quality = 0
+	for clast in cl_list:
+		for tclast in teach_cl_list:
+			if len(clast.elem_list) > 1:
+				q = same_elems(clast.elem_list, tclast.elem_list)
+				if q > 0:
+					quality += q
+					quality -= (len(clast.elem_list) + len(tclast.elem_list) - 2*q)
+	if old_quality > quality:
+		return 0
+	else:
+		return quality
+
+def same_elems (elems, telems):
+	count = 0
+	for elem in elems:
+		if telems.find(elem) != -1:
+			count += 1
+	return count
+
+def check_quality (cl_list, flag, quality, teach_cl_list):
+	if flag:
+		if cl_list.list_quality < quality:
+			return 0
+		else:
+			return quality
+	else:
+		return count_quality (cl_list, teach_cl_list, quality)
+
+def clustering (cl_list, flag, quality, teach_cl_list):
+	min = 10000000
+	first_claster  = cl_list.claster_list[0]
+	second_claster = cl_list.claster_list[0]
+	for i in range(0, cl_list.count_clasters-1):
+		for j in range(i+1, cl_list.count_clasters):
+			if min > dist(cl_list.claster_list[i], cl_list.claster_list[j]):
+				min = dist(cl_list.claster_list[i], cl_list.claster_list[j])
+				first_claster  = cl_list.claster_list[i]
+				second_claster = cl_list.claster_list[j]
+	cl_list.del_claster(first_claster)
+	cl_list.del_claster(second_claster)
+	first_claster.add_claster(second_claster)
+	cl_list.add_claster(first_claster)
+	if (check_quality(cl_list, flag, quality, teach_cl_list)) != 0:
+		return cl_list
+	else:
+		return clustering(cl_list, flag, quality, teach_cl_list)
+
+
 
 
 learning('articles')
