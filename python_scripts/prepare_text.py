@@ -81,10 +81,10 @@ class Features:
 		make_frequencies(self.count_words, self.speech_parts_vok)
 		make_frequencies(self.count_words, self.grammar_forms_vok)
 
-		self.features_list += self.count_punct.values() 
 		self.features_list += self.gramms_vok.values() 
 		self.features_list += self.speech_parts_vok.values()
 		self.features_list += self.grammar_forms_vok.values()
+		self.features_list += self.count_punct.values() 
 		self.features_list += self.main_vocabulary.values()
 
 def del_spaces(text):
@@ -119,14 +119,12 @@ class Claster:
 
 	def add_elem(self, new):
 		self.elem_list += [new]
-		self.mass_elem = self.newmass(new)
+		self.mass_elem = newmass(self.mass_elem, new)
 
 	def add_claster(self, new):
 		self.elem_list.append(new.elem_list)
-		self.mass_elem = self.newmass(new.mass_elem)
+		self.mass_elem = newmass(self.mass_elem, new.mass_elem)
 
-	def newmass(self, new):
-		return self.mass_elem
 
 	def print_clt(self):
 		print('id = ' + str(self.claster_id) + '\n')
@@ -160,6 +158,13 @@ class Clasters_list:
 		for element in features_list:
 			self.scan_elem(element)
 
+def newmass(old, new):
+	new_f_list = [] 
+	for i in range(0, len(old.features_list)):
+		new_f_list.append((old.features_list[i] + new.features_list[i])/2)
+	old.features_list = new_f_list
+	return old
+
 def count_quality (cl_list, teach_cl_list, old_quality):
 	quality = 0
 	for clast in cl_list:
@@ -190,14 +195,20 @@ def check_quality (cl_list, flag, quality, teach_cl_list):
 	else:
 		return count_quality (cl_list, teach_cl_list, quality)
 
+def dist(first_claster, second_claster):
+	sum = 0
+	for i in range(0, len(first_claster.mass_elem.features_list)):
+		sum += (first_claster.mass_elem.features_list[i] + second_claster.mass_elem.features_list[i])^2
+	return sqrt(sum)
+
 def clustering (cl_list, flag, quality, teach_cl_list):
 	min = 10000000
 	first_claster  = cl_list.claster_list[0]
 	second_claster = cl_list.claster_list[0]
-	for i in range(0, cl_list.count_clasters-1):
-		for j in range(i+1, cl_list.count_clasters):
-			if min > dist(cl_list.claster_list[i], cl_list.claster_list[j]):
-				min = dist(cl_list.claster_list[i], cl_list.claster_list[j])
+	for i in range(0, cl_list.count_clasters):
+		for j in range(i+1, cl_list.count_clasters+1):
+			if min > dist(cl_list.claster_list[i], cl_list.claster_list[j]): #### FIXME
+				min = dist(cl_list.claster_list[i], cl_list.claster_list[j]) #### FIXME
 				first_claster  = cl_list.claster_list[i]
 				second_claster = cl_list.claster_list[j]
 	cl_list.del_claster(first_claster)
@@ -209,7 +220,108 @@ def clustering (cl_list, flag, quality, teach_cl_list):
 	else:
 		return clustering(cl_list, flag, quality, teach_cl_list)
 
+class Genotype:
+	def __init__ (self, gen_id, weight_list):
+		self.id           = gen_id
+		self.weight_list  = weight_list
+		self.mutation     = -1
+		self.fitness      = 0
+		self.old_fitness  = 0
+		self.best_changed = []
+
+def find_best_weights(features, teach_cl_list, best_quality):
+	genofond = []
+	for i in range(0,100):
+		w_list = []
+		rand.seed()
+		for j in range(0,34):
+			w_list.append(rand.random() + 0.5)
+		genofond.append(Genotype(i, w_list))
+	return genetic_algorism(genofond, features, teach_cl_list, best_quality)
+
+def genetic_algorism (genofond, features, teach_cl_list, best_quality):
+	genofond = selection(genofond, features, teach_cl_list)
+	if best_gen(genofond) > best_quality:
+		return best_gen(genofond)
+	else:
+		genetic_algorism(mutation(crossing(genofond)), features, teach_cl_list, best_quality)
+
+def crossing(genofond):
+	newgenofond = []
+	for gen1 in genofond:
+		for gen2 in genofond:
+			if gen1 != gen2:
+				newgenofond.append(cross_gens(gen1, gen2))
+				newgenofond.append(cross_gens(gen2, gen1))
+		newgenofond.append(gen1)
+	return newgenofond
 
 
+def cross_gens(gen1, gen2):
+	for i in range(0,34):
+		if gen2.best_changed.find(i) != -1:
+			gen1.weight_list[i] = gen2.weight_list[i]
+	gen1.best_changed = gen2.best_changed
+	gen1.old_fitness = max(gen1.fitness, gen2.fitness)
+	return gen1
+
+def mutation(genofond):
+	for gen in genofond:
+		rand.seed()
+		if rand.randint(1, 10) > 7:
+			i = rand.randint(0,33)
+			gen.weight_list[rand.randint(0,33)] += (rand.randint(0, 10) - 5)/100.0
+			if gen.best_changed.find(i) == -1:
+				gen.best_changed.append(i)
+
+def best_gen(genofond):
+	maxf = 0
+	mgen = Genotype(0, [])
+	for gen in genofond:
+		if gen.fitness > maxf:
+			maxf = gen.fitness
+			mgen = gen
+	return mgen
+
+def selection(genofond, features, teach_cl_list):
+	selected_genofond = []
+	for gen in genofond:
+		gen.fitness = fitness_function(gen, features, teach_cl_list)
+		selected_genofond.append(gen)
+	res_genofond = []
+	for i in range(0, 5):
+		g = best_gen(selected_genofond)
+		res_genofond.append(g)
+		selected_genofond.remove(g)
+	return res_genofond
+
+def fitness_function(gen, features, teach_cl_list):
+	test_features = []
+	for feature in features:
+		test_features.append(change_feature(gen, feature))
+	cl_list = clustering(make_def_cl_list(test_features), False, -100000, teach_cl_list)
+	return count_quality(cl_list, teach_cl_list, -100000)
+
+def make_def_cl_list(features):
+	res_cl_list = Claster_list()
+	i = 0
+	for feature in features:
+		res_cl_list.add_claster(Claster(i, feature))
+		i += 1
+
+def change_feature(gen, feature):
+	new_f_list = []
+	i = 0
+	for elem in feature.features_list:
+		if i < 32:
+			new_f_list.append(elem * gen[i])
+		elif i < 40:
+			new_f_list.append(elem * gen[32])
+		else:
+			new_f_list.append(elem * gen[33])
+		i += 1
+	new_feature = feature
+	new_feature.features_list = new_f_list
+	return new_feature
 
 learning('articles')
