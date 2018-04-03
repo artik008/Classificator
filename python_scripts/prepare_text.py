@@ -5,7 +5,7 @@ import os
 from nltk.tokenize import sent_tokenize, word_tokenize
 from collections import OrderedDict
 from pymystem3 import *
-
+ -
 m = Mystem()
 
 def check_len(l):
@@ -29,7 +29,7 @@ class Features:
 		self.gramms_vok        = OrderedDict.fromkeys((fgramms.read()).split(' '), 0)
 		self.speech_parts_vok  = OrderedDict.fromkeys(['A', 'ADV','ADVPRO', 'ANUM', 'APRO', 'COM', 'CONJ', 'INTJ', 'NUM', 'PART', 'PR', 'S', 'SPRO', 'V'], 0)
 		self.grammar_forms_vok = OrderedDict.fromkeys(['прев','срав','деепр','прич','изъяв','пов','наст','непрош','прош','действ','страд','имя'], 0)
-		self.count_punct       = OrderedDict.fromkeys(['.',',','!','?',':','"',':)','\n'], 0)
+		self.count_punct       = OrderedDict.fromkeys(['.',',','!','?',':','"',':)', ':(','\n'], 0)
 		self.main_vocabulary   = OrderedDict.fromkeys((fvocabulary.read()).split('\n'), 0)
 		
 		fgramms.close()
